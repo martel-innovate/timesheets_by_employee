@@ -21,6 +21,7 @@
 
 import logging
 import json
+import re
 
 from odoo import models, fields, api
 
@@ -75,6 +76,8 @@ class ReportTimesheet(models.AbstractModel):
         def convert(record_in):
             """We perform a group by on the task name, 
             and add a subtotal line and a whiteline for every group
+
+            We order on taskname, preferable on the WPnumber (to prevent WP10 is printed before WP1).
             """
 
             def calculate_total_duration(value_reports_grouped, task_name):
@@ -84,27 +87,41 @@ class ReportTimesheet(models.AbstractModel):
             tasks = []
 
             for report in record_in['reports']:
+                if report['task'] is False:
+                    report['task'] = ''
+
                 value_reports_grouped.setdefault(report['task'], []).append(report)
                 tasks.append(report['task'])
 
             tasks = list(set(tasks))
-            tasks_names_ordered = sorted(tasks)
+
+            if all([True if re.match('^WP([1-9][0-9]*):.*$', task) else False for task in tasks]):
+                tasks.sort(key = lambda x: float(re.match('^WP([1-9][0-9]*):.*$', x).groups()[0]))
+                tasks_names_ordered = tasks
+            else:
+                tasks_names_ordered = sorted(tasks)
+
+
             tasks_totals = {}
             for task_name in tasks_names_ordered:
                 tasks_totals[task_name] = calculate_total_duration(value_reports_grouped, task_name)
 
+            project_without_tasks = False
+            if all([True if task == '' else False for task in tasks_names_ordered]):
+                project_without_tasks = True
 
             value_reports_new = []
             for task_name in tasks_names_ordered:
                 value_reports_new.extend(value_reports_grouped[task_name])
 
-                subtotal_line = {'task': 'SubTotal',
+
+                subtotal_line = {'task': '' if project_without_tasks else ' ',
                                  'description': ' ',
                                  'duration': tasks_totals[task_name],
-                                 'date': ''}
+                                 'date': 'SubTotal'}
                 value_reports_new.append(subtotal_line)
 
-                empty_line = {'task': ' ',
+                empty_line = {'task': '' if project_without_tasks else ' ',
                               'description': 'WHITELINE',
                               'duration': -1,
                               'date': ''}
