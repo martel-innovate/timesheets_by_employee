@@ -37,8 +37,14 @@
                               <t t-if="r['task']">
                                 <td><span t-esc="r['task']"/></td>
                               </t>
-                              <td><span t-esc="r['description']"/></td>
-                              <td width="80px" align="right"><span t-esc="r['duration']" t-options="{'widget': 'duration', 'digital': True, 'unit': 'hour', 'round': 'minute'}"/></td>
+                              <t t-if="r['description'] != 'WHITELINE'">
+                                  <td><span t-esc="r['description']"/></td>
+                                  <td width="80px" align="right"><span t-esc="r['duration']" t-options="{'widget': 'duration', 'digital': True, 'unit': 'hour', 'round': 'minute'}"/></td>
+                              </t>
+                              <t t-if="r['description'] == 'WHITELINE'">
+                                  <td>&#160;</td>
+                                  <td width="80px" align="right">&#160;</td>
+                              </t>
                             </tr>
                             <tr>
                               <t t-if="details['reports'][0]['task']">
