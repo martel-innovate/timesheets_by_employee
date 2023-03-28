@@ -103,7 +103,7 @@ class ReportTimesheet(models.AbstractModel):
         for r in rec:
             if r.id in rec2filter_ids:
                 continue
-            if r.project_id.name.lower().strip() == 'overtime payment':
+            if r.project_id and r.project_id.name.lower().strip() == 'overtime payment':
                 continue
             reports = []
             hours = 0
