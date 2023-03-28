@@ -38,22 +38,71 @@ class ReportTimesheet(models.AbstractModel):
             "Generating TimeSheet"
         )
 
+
         if docs.from_date and docs.to_date:
             rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
                                                             ('date', '>=', docs.from_date),
                                                             ('date', '<=', docs.to_date)])
+
+            rec2filter = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+                                                            ('date', '>=', docs.from_date),
+                                                            ('date', '<=', docs.to_date),
+                                                            ('project_id', '=', False),
+                                                            ('employee_id', '=', False),
+                                                            ('product_id', '!=', False),
+                                                            ('general_account_id', '!=', False),
+                                                            ('move_id', '!=', False),
+                                                            ('timesheet_invoice_type', '=', False),
+                                                            ])
+
         elif docs.from_date:
             rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
                                                             ('date', '>=', docs.from_date)])
+
+            rec2filter = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+                                                            ('date', '>=', docs.from_date),
+                                                            ('project_id', '=', False),
+                                                            ('employee_id', '=', False),
+                                                            ('product_id', '!=', False),
+                                                            ('general_account_id', '!=', False),
+                                                            ('move_id', '!=', False),
+                                                            ('timesheet_invoice_type', '=', False),
+                                                            ])
+
         elif docs.to_date:
             rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
                                                             ('date', '<=', docs.to_date)])
+
+            rec2filter = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+                                                            ('date', '<=', docs.to_date),
+                                                            ('project_id', '=', False),
+                                                            ('employee_id', '=', False),
+                                                            ('product_id', '!=', False),
+                                                            ('general_account_id', '!=', False),
+                                                            ('move_id', '!=', False),
+                                                            ('timesheet_invoice_type', '=', False),
+                                                            ])
+
         else:
             rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id)])
+
+            rec2filter = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+                                                            ('project_id', '=', False),
+                                                            ('employee_id', '=', False),
+                                                            ('product_id', '!=', False),
+                                                            ('general_account_id', '!=', False),
+                                                            ('move_id', '!=', False),
+                                                            ('timesheet_invoice_type', '=', False),
+                                                                   ])
+
+
+        rec2filter_ids = [r.id for r in rec2filter]
 
         records = {}
         total = 0
         for r in rec:
+            if r.id in rec2filter_ids:
+                continue
             reports = []
             hours = 0
             if r.project_id.name in records:
@@ -74,7 +123,7 @@ class ReportTimesheet(models.AbstractModel):
 
 
         def convert(record_in):
-            """We perform a group by on the task name, 
+            """We perform a group by on the task name,
             and add a subtotal line and a whiteline for every group
 
             We order on taskname, preferable on the WPnumber (to prevent WP10 is printed before WP1).
