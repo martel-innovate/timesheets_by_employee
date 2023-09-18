@@ -38,18 +38,26 @@ class ReportTimesheet(models.AbstractModel):
             "Generating TimeSheet"
         )
 
+
+
+
         if docs.from_date and docs.to_date:
-            rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+            rec = self.env['account.analytic.line'].search([('employee_id', '=', docs.employee[0].id),
                                                             ('date', '>=', docs.from_date),
                                                             ('date', '<=', docs.to_date)])
         elif docs.from_date:
-            rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+            rec = self.env['account.analytic.line'].search([('employee_id', '=', docs.employee[0].id),
                                                             ('date', '>=', docs.from_date)])
         elif docs.to_date:
-            rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id),
+            rec = self.env['account.analytic.line'].search([('employee_id', '=', docs.employee[0].id),
                                                             ('date', '<=', docs.to_date)])
         else:
-            rec = self.env['account.analytic.line'].search([('user_id', '=', docs.employee[0].id)])
+            rec = self.env['account.analytic.line'].search([('employee_id', '=', docs.employee[0].id)])
+
+
+
+
+
 
         records = {}
         total = 0
@@ -74,7 +82,7 @@ class ReportTimesheet(models.AbstractModel):
 
 
         def convert(record_in):
-            """We perform a group by on the task name, 
+            """We perform a group by on the task name,
             and add a subtotal line and a whiteline for every group
 
             We order on taskname, preferable on the WPnumber (to prevent WP10 is printed before WP1).
