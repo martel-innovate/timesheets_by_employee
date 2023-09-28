@@ -159,7 +159,7 @@ class ReportTimesheet(models.AbstractModel):
         we pass the objects in the docargs dictionary"""
         docs = self.env['timesheet.wizard'].browse(self.env.context.get('active_id'))
         identification = []
-        for i in self.env['hr.employee'].search([('user_id', '=', docs.employee[0].id)]):
+        for i in self.env['hr.employee'].search([('id', '=', docs.employee[0].id)]):
             if i:
                 identification.append({'id': i.id, 'name': i.name})
         timesheets = self.get_timesheets(docs)
