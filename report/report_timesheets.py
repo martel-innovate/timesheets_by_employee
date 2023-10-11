@@ -58,6 +58,8 @@ class ReportTimesheet(models.AbstractModel):
         records = {}
         total = 0
         for r in rec:
+            if r.project_id and r.project_id.excl_from_printed_timesheets:
+                continue
             reports = []
             hours = 0
             if r.project_id.name in records:
