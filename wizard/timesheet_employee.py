@@ -25,7 +25,7 @@ from odoo import models, fields
 class EmployeeTimesheet(models.TransientModel):
     _name = 'timesheet.wizard'
 
-    employee = fields.Many2one('res.users', string="Employee", required=True)
+    employee = fields.Many2one('hr.employee', string="Employee", required=True)
     from_date = fields.Date(string="Starting Date")
     to_date = fields.Date(string="Ending Date")
 
