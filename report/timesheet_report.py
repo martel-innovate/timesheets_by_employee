@@ -21,82 +21,92 @@
 
 from odoo import api, fields, models
 
-
 class ReportTimesheet(models.AbstractModel):
     _name = 'report.timesheets_by_employee.report_timesheets'
     _description = 'Timesheet Report'
 
     def get_timesheets(self, docs):
         """input : name of employee, the starting date and ending date
-        output: timesheets by that particular employee within that period and
-        the total duration
+        output: timesheets by that particular employee within that period
         """
         if docs.from_date and docs.to_date:
             record = self.env['account.analytic.line'].search(
                 [('user_id', '=', docs.user_id[0].id),
-                 ('date', '>=', docs.from_date), ('date', '<=', docs.to_date)])
+                 ('date', '>=', docs.from_date), 
+                 ('date', '<=', docs.to_date)],
+                order='date')
         elif docs.from_date:
             record = self.env['account.analytic.line'].search(
                 [('user_id', '=', docs.user_id[0].id),
-                 ('date', '>=', docs.from_date)])
+                 ('date', '>=', docs.from_date)],
+                order='date')
         elif docs.to_date:
             record = self.env['account.analytic.line'].search(
                 [('user_id', '=', docs.user_id[0].id),
-                 ('date', '<=', docs.to_date)])
+                 ('date', '<=', docs.to_date)],
+                order='date')
         else:
             record = self.env['account.analytic.line'].search(
-                [('user_id', '=', docs.user_id[0].id)])
+                [('user_id', '=', docs.user_id[0].id)],
+                order='date')
+
         records = []
-        total = 0
+        total = 0.0
+
         for rec in record:
-            vals = {'project': rec.project_id.name,
-                    'user': rec.user_id.partner_id.name,
-                    'duration': rec.unit_amount,
-                    'date': rec.date,
-                    }
+            # Converti la durata in formato HH:MM
+            hours = int(rec.unit_amount)
+            minutes = int((rec.unit_amount - hours) * 60)
+            duration_str = f"{hours:02d}:{minutes:02d}"
+
+            vals = {
+                'project': rec.project_id.name or '',
+                'user': rec.user_id.partner_id.name,
+                'duration': duration_str,
+                'date': rec.date,
+                'description': rec.name or ''  # Aggiunta della descrizione
+            }
             total += rec.unit_amount
             records.append(vals)
-        return [records, total]
+
+        # Converti il totale in formato HH:MM
+        total_hours = int(total)
+        total_minutes = int((total - total_hours) * 60)
+        total_str = f"{total_hours:02d}:{total_minutes:02d}"
+
+        return records, total_str
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        """we are overwriting this function because we need to show values from
-        other models in the report we pass the objects in the docargs dictionary
-        """
         docs = self.env['timesheet.report'].browse(
             self.env.context.get('active_id'))
+        
+        # Informazioni dipendente
         identification = []
         for rec in self.env['hr.employee'].search(
                 [('user_id', '=', docs.user_id[0].id)]):
             if rec:
-                identification.append({'id': rec.id, 'name': rec.name})
-        timesheets = self.get_timesheets(docs)
-        company_id = self.env['res.company'].search(
-            [('name', '=', docs.user_id[0].company_id.name)])
+                identification.append({
+                    'id': rec.id,
+                    'name': rec.name
+                })
+
+        # Periodo
         period = None
         if docs.from_date and docs.to_date:
-            period = "From " + str(docs.from_date) + " To " + str(docs.to_date)
+            period = f"From {docs.from_date} To {docs.to_date}"
         elif docs.from_date:
-            period = "From " + str(docs.from_date)
+            period = f"From {docs.from_date}"
         elif docs.to_date:
-            period = "To " + str(docs.to_date)
-        if len(identification) > 1:
-            return {
-                'doc_ids': self.ids,
-                'docs': docs,
-                'timesheets': timesheets[0],
-                'total': timesheets[1],
-                'company': company_id,
-                'identification': identification,
-                'period': period,
-            }
-        else:
-            return {
-                'doc_ids': self.ids,
-                'docs': docs,
-                'timesheets': timesheets[0],
-                'total': timesheets[1],
-                'identification': identification,
-                'company': company_id,
-                'period': period,
-            }
+            period = f"To {docs.to_date}"
+
+        timesheets, total = self.get_timesheets(docs)
+
+        return {
+            'doc_ids': self.ids,
+            'docs': docs,
+            'timesheets': timesheets,
+            'total': total,
+            'identification': identification,
+            'period': period,
+        }
