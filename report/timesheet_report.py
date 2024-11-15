@@ -26,9 +26,6 @@ class ReportTimesheet(models.AbstractModel):
     _description = 'Timesheet Report'
 
     def get_timesheets(self, docs):
-        """input : name of employee, the starting date and ending date
-        output: timesheets by that particular employee within that period
-        """
         if docs.from_date and docs.to_date:
             record = self.env['account.analytic.line'].search(
                 [('user_id', '=', docs.user_id[0].id),
@@ -54,22 +51,21 @@ class ReportTimesheet(models.AbstractModel):
         total = 0.0
 
         for rec in record:
-            # Converti la durata in formato HH:MM
             hours = int(rec.unit_amount)
             minutes = int((rec.unit_amount - hours) * 60)
             duration_str = f"{hours:02d}:{minutes:02d}"
 
             vals = {
                 'project': rec.project_id.name or '',
+                'task': rec.task_id.name or '',
                 'user': rec.user_id.partner_id.name,
                 'duration': duration_str,
                 'date': rec.date,
-                'description': rec.name or ''  # Aggiunta della descrizione
+                'description': rec.name or ''
             }
             total += rec.unit_amount
             records.append(vals)
 
-        # Converti il totale in formato HH:MM
         total_hours = int(total)
         total_minutes = int((total - total_hours) * 60)
         total_str = f"{total_hours:02d}:{total_minutes:02d}"
@@ -78,20 +74,15 @@ class ReportTimesheet(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['timesheet.report'].browse(
-            self.env.context.get('active_id'))
-        
-        # Informazioni dipendente
+        docs = self.env['timesheet.report'].browse(self.env.context.get('active_id'))
         identification = []
-        for rec in self.env['hr.employee'].search(
-                [('user_id', '=', docs.user_id[0].id)]):
+        for rec in self.env['hr.employee'].search([('user_id', '=', docs.user_id[0].id)]):
             if rec:
                 identification.append({
                     'id': rec.id,
                     'name': rec.name
                 })
 
-        # Periodo
         period = None
         if docs.from_date and docs.to_date:
             period = f"From {docs.from_date} To {docs.to_date}"
