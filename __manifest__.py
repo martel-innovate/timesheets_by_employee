@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
-#    Copyright (C) 2020-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Copyright (C) 2021-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
@@ -20,7 +20,7 @@
 
 {
     'name': 'Timesheet PDF Report',
-    'version': '14.0.1.0.0',
+    'version': '16.0.1.0.0',
     "category": "Generic Modules/Human Resources",
     'sequence': 25,
     'summary': 'Timesheet PDF Report of Employees',
@@ -29,12 +29,12 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['hr_timesheet'],
+    'depends': ['hr', 'hr_timesheet'],
     'data': [
              'security/ir.model.access.csv',
-             'report/report_timesheets.xml',
-             'report/timesheet_pdf.xml',
-             'wizard/timesheet_wizard.xml',
+             'report/timesheet_reports.xml',
+             'report/timesheet_templates.xml',
+             'wizard/timesheet_report_views.xml',
             ],
     'images': ['static/description/banner.png'],
     'license': 'LGPL-3',

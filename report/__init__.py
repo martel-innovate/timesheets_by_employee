@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
-#    Copyright (C) 2019-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Copyright (C) 2021-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
 #    Author: Kavya Raveendran (odoo@cybrosys.com)
 #
 #    You can modify it under the terms of the GNU LESSER
@@ -19,4 +19,4 @@
 #
 ##############################################################################
 
-from . import report_timesheets
+from . import timesheet_report
