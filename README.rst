@@ -2,10 +2,7 @@
     :target: http://www.gnu.org/licenses/agpl-3.0-standalone.html
     :alt: License: AGPL-3
 
-
-THIS IS A VERSION CUSTOMIZED BY MARTEL
-
-Timesheets by Employees v14
+Timesheets by Employees v15
 ===========================
 
 This module allows to print the timesheets of selected employee.
@@ -21,7 +18,9 @@ Company
 Credits
 -------
 * Developer:	Kavya Raveendran @ cybrosys, Contact: odoo@cybrosys.com
-*    		    Version 14: Muhammed P @cybrosys,Contact: odoo@cybrosys.com
+                version 14: Muhammed P @cybrosys,Contact: odoo@cybrosys.com
+                version 15: Abhishek E T @cybrosys,Contact: odoo@cybrosys.com
+                version 16:Sumith Sivan @cybrosys,Contact: odoo@cybrosys.com
 
 Contacts
 --------

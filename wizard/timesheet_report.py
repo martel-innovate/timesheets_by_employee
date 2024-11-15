@@ -2,7 +2,7 @@
 ##############################################################################
 #
 #    Cybrosys Technologies Pvt. Ltd.
-#    Copyright (C) 2019-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Copyright (C) 2021-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
 #    Author: Kavya Raveendran (odoo@cybrosys.com)
 #
 #    You can modify it under the terms of the GNU LESSER
@@ -19,13 +19,14 @@
 #
 ##############################################################################
 
-from odoo import models, fields
+from odoo import fields, models
 
 
-class EmployeeTimesheet(models.TransientModel):
-    _name = 'timesheet.wizard'
+class TimesheetReport(models.TransientModel):
+    _name = 'timesheet.report'
+    _description = 'Timesheet Report Wizard'
 
-    employee = fields.Many2one('hr.employee', string="Employee", required=True)
+    user_id = fields.Many2one('res.users', string="Employee", required=True)
     from_date = fields.Date(string="Starting Date")
     to_date = fields.Date(string="Ending Date")
 
@@ -33,9 +34,10 @@ class EmployeeTimesheet(models.TransientModel):
         """Redirects to the report with the values obtained from the wizard
         'data['form']': name of employee and the date duration"""
         data = {
+            'employee': self.user_id.id,
             'start_date': self.from_date,
             'end_date': self.to_date,
-            'employee': self.employee.id
         }
-        return self.env.ref('timesheets_by_employee.action_report_print_timesheets').report_action(self, data=data)
-
+        return self.env.ref(
+            'timesheets_by_employee.action_report_print_timesheets').\
+            report_action(self, data=data)
