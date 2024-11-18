@@ -4,75 +4,99 @@
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
                 <div class="page">
-                    <h2 class="text-center mb-4">Timesheet Report by Employees</h2>
-                    
-                    <!-- Header Information -->
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <strong>Employee Name</strong>
-                            <p t-field="employee.name"/>
-                        </div>
-                        <div class="col-6">
-                            <strong>Timesheet Period</strong>
-                            <p t-esc="period"/>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <strong>Total Working Hours</strong>
-                            <p t-esc="timesheet_data['total']"/>
-                        </div>
-                    </div>
-
-                    <!-- Project Groups -->
-                    <t t-foreach="timesheet_data['projects']" t-as="project">
-                        <div class="project-section mb-4">
-                            <h4 t-esc="project" class="bg-light p-2"/>
-                            
-                            <!-- Tasks within Project -->
-                            <t t-foreach="timesheet_data['projects'][project]['tasks']" t-as="task">
-                                <div class="task-section mt-3">
-                                    <h5 class="text-primary" t-esc="task"/>
-                                    
-                                    <!-- Entries Table -->
-                                    <table class="table table-sm table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Description</th>
-                                                <th class="text-right">Worked Time</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="timesheet_data['projects'][project]['tasks'][task]['entries']" t-as="entry">
-                                                <tr>
-                                                    <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
-                                                    <td><span t-esc="entry['description']"/></td>
-                                                    <td class="text-right"><span t-esc="entry['duration']"/></td>
-                                                </tr>
-                                            </t>
-                                            <!-- Task Total -->
-                                            <tr class="table-light">
-                                                <td colspan="2" class="text-right">
-                                                    <strong>Task Total:</strong>
-                                                </td>
-                                                <td class="text-right">
-                                                    <strong t-esc="timesheet_data['projects'][project]['tasks'][task]['subtotal']"/>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </t>
-                            
-                            <!-- Project Total -->
-                            <div class="text-right mb-3 bg-light p-2">
-                                <strong>Project Total: </strong>
-                                <span t-esc="timesheet_data['projects'][project]['subtotal']"/>
+                    <div class="container">
+                        <!-- Header -->
+                        <div class="row">
+                            <div class="col-12 text-center mb-4">
+                                <h2>Timesheet Report by Employees</h2>
                             </div>
                         </div>
-                    </t>
+
+                        <!-- Employee and Period Info -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Employee Name: </strong>
+                                <span t-esc="employee.name"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Period: </strong>
+                                <span t-esc="period"/>
+                            </div>
+                        </div>
+
+                        <!-- Total Hours -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <strong>Total Hours: </strong>
+                                <span t-esc="timesheet_data['total_hours_display']"/>
+                            </div>
+                        </div>
+
+                        <!-- Projects Loop -->
+                        <t t-foreach="timesheet_data['projects']" t-as="project">
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h4 class="bg-light p-2" t-esc="project"/>
+                                    
+                                    <!-- Tasks Loop -->
+                                    <t t-foreach="timesheet_data['projects'][project]['tasks']" t-as="task">
+                                        <div class="mt-3">
+                                            <h5 t-esc="task"/>
+                                            
+                                            <div class="table-responsive">
+                                                <table class="table table-sm table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="15%">Date</th>
+                                                            <th width="70%">Description</th>
+                                                            <th width="15%" class="text-right">Hours</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="timesheet_data['projects'][project]['tasks'][task]['entries']" t-as="entry">
+                                                            <tr>
+                                                                <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
+                                                                <td><span t-esc="entry['description']"/></td>
+                                                                <td class="text-right"><span t-esc="entry['duration']"/></td>
+                                                            </tr>
+                                                        </t>
+                                                        <tr class="table-light">
+                                                            <td colspan="2" class="text-right"><strong>Task Total:</strong></td>
+                                                            <td class="text-right">
+                                                                <strong t-esc="timesheet_data['projects'][project]['tasks'][task]['subtotal_display']"/>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    
+                                    <div class="text-right mb-4 bg-light p-2">
+                                        <strong>Project Total: </strong>
+                                        <span t-esc="timesheet_data['projects'][project]['subtotal_display']"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Footer with Company Info -->
+                        <div class="footer o_standard_footer">
+                            <div class="text-center">
+                                <div t-if="company.phone">Phone: <span t-field="company.phone"/></div>
+                                <div t-if="company.email">Email: <span t-field="company.email"/></div>
+                                <div t-if="company.website">Website: <span t-field="company.website"/></div>
+                                <div>
+                                    <span t-field="company.street"/>
+                                    <span t-if="company.street2"> <span t-field="company.street2"/></span>
+                                    <span t-if="company.city"> <span t-field="company.city"/></span>
+                                    <span t-if="company.state_id"> <span t-field="company.state_id.name"/></span>
+                                    <span t-if="company.zip"> <span t-field="company.zip"/></span>
+                                    <span t-if="company.country_id"> <span t-field="company.country_id.name"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </t>
         </t>
