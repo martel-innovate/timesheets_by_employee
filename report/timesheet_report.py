@@ -2,6 +2,7 @@ from odoo import api, fields, models
 from collections import defaultdict
 from datetime import datetime
 
+
 class ReportTimesheet(models.AbstractModel):
     _name = 'report.timesheets_by_employee.report_timesheets'
     _description = 'Timesheet Report'
@@ -57,8 +58,21 @@ class ReportTimesheet(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         docs = self.env['timesheet.report'].browse(self.env.context.get('active_id'))
-        company = self.env.company
-
+        company = self.env.company.sudo()
+        logo = False
+        if company.logo:
+            logo = company.logo
+        company_data = {
+            'name': company.name,
+            'email': company.email,
+            'city': company.city,
+            'street': company.street,
+            'zip': company.zip,
+            'state_id': company.state_id and company.state_id.name,
+            'phone': company.phone,
+            'website': company.website,
+        }
+        
         employee = self.env['hr.employee'].search([('user_id', '=', docs.user_id[0].id)], limit=1)
         
         period = None
@@ -73,11 +87,11 @@ class ReportTimesheet(models.AbstractModel):
         
         return {
             'doc_ids': self.ids,
-            'doc_model':'timesheet.report',
+            'doc_model': 'timesheet.report',
             'docs': docs,
             'employee': employee,
             'period': period,
             'timesheet_data': timesheet_data,
-            'company': company,
-            'o': docs,
+            'res_company': company,
+            'company_data': company_data,
         }
