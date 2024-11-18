@@ -73,9 +73,11 @@ class ReportTimesheet(models.AbstractModel):
         
         return {
             'doc_ids': self.ids,
+            'doc_model':'timesheet.report',
             'docs': docs,
             'employee': employee,
             'period': period,
             'timesheet_data': timesheet_data,
             'company': company,
+            'o': docs,
         }
