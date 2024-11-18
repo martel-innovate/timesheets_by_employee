@@ -38,11 +38,45 @@
                                 <div class="col-12">
                                     <h4 class="bg-light p-2" t-esc="project"/>
                                     
-                                    <!-- Tasks Loop -->
+                                    <!-- Tasks Loop - Skip if task is 'No Task' -->
                                     <t t-foreach="timesheet_data['projects'][project]['tasks']" t-as="task">
+                                        <t t-if="task != 'No Task'">
+                                            <div class="mt-3">
+                                                <h5 t-esc="task"/>
+                                                
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="15%">Date</th>
+                                                                <th width="70%">Description</th>
+                                                                <th width="15%" class="text-right">Hours</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <t t-foreach="timesheet_data['projects'][project]['tasks'][task]['entries']" t-as="entry">
+                                                                <tr>
+                                                                    <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
+                                                                    <td><span t-esc="entry['description']"/></td>
+                                                                    <td class="text-right"><span t-esc="entry['duration']"/></td>
+                                                                </tr>
+                                                            </t>
+                                                            <tr class="table-light">
+                                                                <td colspan="2" class="text-right"><strong>Task Total:</strong></td>
+                                                                <td class="text-right">
+                                                                    <strong t-esc="timesheet_data['projects'][project]['tasks'][task]['subtotal_display']"/>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    
+                                    <!-- Show entries without task -->
+                                    <t t-if="'No Task' in timesheet_data['projects'][project]['tasks']">
                                         <div class="mt-3">
-                                            <h5 t-esc="task"/>
-                                            
                                             <div class="table-responsive">
                                                 <table class="table table-sm table-bordered">
                                                     <thead>
@@ -53,7 +87,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <t t-foreach="timesheet_data['projects'][project]['tasks'][task]['entries']" t-as="entry">
+                                                        <t t-foreach="timesheet_data['projects'][project]['tasks']['No Task']['entries']" t-as="entry">
                                                             <tr>
                                                                 <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
                                                                 <td><span t-esc="entry['description']"/></td>
@@ -61,9 +95,9 @@
                                                             </tr>
                                                         </t>
                                                         <tr class="table-light">
-                                                            <td colspan="2" class="text-right"><strong>Task Total:</strong></td>
+                                                            <td colspan="2" class="text-right"><strong>Total:</strong></td>
                                                             <td class="text-right">
-                                                                <strong t-esc="timesheet_data['projects'][project]['tasks'][task]['subtotal_display']"/>
+                                                                <strong t-esc="timesheet_data['projects'][project]['tasks']['No Task']['subtotal_display']"/>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -79,20 +113,33 @@
                                 </div>
                             </div>
                         </t>
+                    </div>
+                </div>
 
-                        <!-- Footer with Company Info -->
-                        <div class="footer o_standard_footer">
-                            <div class="text-center">
-                                <div t-if="company.phone">Phone: <span t-field="company.phone"/></div>
-                                <div t-if="company.email">Email: <span t-field="company.email"/></div>
-                                <div t-if="company.website">Website: <span t-field="company.website"/></div>
-                                <div>
-                                    <span t-field="company.street"/>
-                                    <span t-if="company.street2"> <span t-field="company.street2"/></span>
-                                    <span t-if="company.city"> <span t-field="company.city"/></span>
-                                    <span t-if="company.state_id"> <span t-field="company.state_id.name"/></span>
+                <!-- Footer with Company Info and Page Numbers -->
+                <div class="footer">
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="text-center" style="border-top: 1px solid #dee2e6; padding-top: 10px;">
+                                <div t-if="company.name" class="mb-2">
+                                    <strong><span t-field="company.name"/></strong>
+                                </div>
+                                <div class="mb-2">
+                                    <span t-if="company.street" t-field="company.street"/>
+                                    <span t-if="company.street2">, <span t-field="company.street2"/></span>
+                                    <br t-if="company.street or company.street2"/>
+                                    <span t-if="company.city" t-field="company.city"/>
+                                    <span t-if="company.state_id">, <span t-field="company.state_id.name"/></span>
                                     <span t-if="company.zip"> <span t-field="company.zip"/></span>
-                                    <span t-if="company.country_id"> <span t-field="company.country_id.name"/></span>
+                                    <span t-if="company.country_id">, <span t-field="company.country_id.name"/></span>
+                                </div>
+                                <div class="mb-2">
+                                    <span t-if="company.phone">Tel: <span t-field="company.phone"/></span>
+                                    <span t-if="company.email"> | Email: <span t-field="company.email"/></span>
+                                    <span t-if="company.website"> | Web: <span t-field="company.website"/></span>
+                                </div>
+                                <div class="text-muted">
+                                    Page <span class="page"/> of <span class="topage"/>
                                 </div>
                             </div>
                         </div>
